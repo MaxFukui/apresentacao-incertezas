@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Enfrentar as Incertezas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap">
+<style>
+/* Layout: palco 16:9 fixo (1920×1080) escalado para a tela; cada slide = imagem de época ao fundo + véu claro + texto grande. */
+:root{
+  --paper:#FBFBF8;      /* fundo claro, levemente quente */
+  --veil:251,251,248;   /* rgb do véu */
+  --ink:#1A2030;        /* texto principal */
+  --navy:#13246B;       /* títulos (mesmo azul da Etna) */
+  --red:#C8371F;        /* acento: vermelho da UCDB, escurecido para contraste */
+  --muted:#454D60;      /* créditos, rodapé */
+  --line:#D9DDE6;
+  --sans:'Open Sans', Arial, Helvetica, sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{margin:0;background:#E9ECF2;color:var(--ink);font-family:var(--sans);overflow:hidden}
+.viewport{position:fixed;inset:0;overflow:hidden}
+.stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:var(--paper);transform:translate(-50%,-50%);transform-origin:center center;box-shadow:0 10px 40px rgba(19,36,107,.18);overflow:hidden}
+
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .6s ease, visibility 0s linear .6s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .6s ease}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.06);transition:transform 9s ease-out}
+.slide.active .bg{transform:scale(1)}
+.veil{position:absolute;inset:0;background:rgba(var(--veil),.86)}
+.veil.left{background:linear-gradient(90deg,rgba(var(--veil),.97) 0%,rgba(var(--veil),.94) 50%,rgba(var(--veil),.62) 72%,rgba(var(--veil),.12) 100%)}
+.veil.right{background:linear-gradient(270deg,rgba(var(--veil),.97) 0%,rgba(var(--veil),.94) 50%,rgba(var(--veil),.62) 72%,rgba(var(--veil),.12) 100%)}
+.veil.soft{background:rgba(var(--veil),.80)}
+
+.content{position:absolute;top:96px;left:140px;right:140px;bottom:150px;display:flex;flex-direction:column;justify-content:center;gap:44px}
+.content.half{right:47%}
+.content.halfR{left:47%}
+.content.center{align-items:center;text-align:center}
+.content > *{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease}
+.slide.active .content > *{opacity:1;transform:none}
+.slide.active .content > *:nth-child(2){transition-delay:.12s}
+.slide.active .content > *:nth-child(3){transition-delay:.24s}
+.slide.active .content > *:nth-child(4){transition-delay:.36s}
+.slide.active .content > *:nth-child(5){transition-delay:.48s}
+
+.eyebrow{margin:0;font-size:34px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red)}
+h1,h2{margin:0;color:var(--navy);font-weight:800;line-height:1.08;text-wrap:balance}
+h1{font-size:104px}
+h2{font-size:80px}
+.lead{margin:0;font-size:54px;font-weight:600;line-height:1.25;color:var(--ink);text-wrap:balance}
+.body{margin:0;font-size:46px;font-weight:600;line-height:1.3;color:var(--ink)}
+.quote{margin:0;font-size:62px;font-weight:700;line-height:1.22;color:var(--navy);text-wrap:balance;position:relative}
+.quote.xl{font-size:84px}
+.quote::before{content:"\201C";color:var(--red);margin-right:4px}
+.quote::after{content:"\201D";color:var(--red)}
+.cite{margin:0;font-size:36px;font-weight:600;color:var(--muted)}
+.cite b{color:var(--ink)}
+.red{color:var(--red)}
+.navy{color:var(--navy)}
+
+/* grades e cartões */
+.row{display:flex;gap:36px;align-items:stretch}
+.card{flex:1;min-width:0;background:rgba(255,255,255,.92);border:3px solid var(--navy);border-radius:20px;padding:34px 36px;display:flex;flex-direction:column;gap:14px}
+.card h3{margin:0;font-size:46px;font-weight:800;color:var(--navy);line-height:1.1}
+.card p{margin:0;font-size:38px;font-weight:600;line-height:1.28;color:var(--ink)}
+.card.hot{border-color:var(--red)}
+.card.hot h3{color:var(--red)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.tag{display:inline-block;font-size:30px;font-weight:800;color:#fff;background:var(--red);border-radius:999px;padding:6px 22px;letter-spacing:1px}
+
+/* tríade */
+.triad{display:flex;align-items:center;gap:28px;flex-wrap:nowrap}
+.pill{font-size:56px;font-weight:800;color:var(--navy);background:rgba(255,255,255,.92);border:4px solid var(--navy);border-radius:999px;padding:18px 44px}
+.pill.red{color:var(--red);border-color:var(--red)}
+.arrow{font-size:60px;font-weight:800;color:var(--red)}
+
+/* tabela dos circuitos */
+.circ{display:flex;flex-direction:column;gap:22px}
+.circ .it{display:grid;grid-template-columns:590px 1fr;gap:36px;align-items:center;background:rgba(255,255,255,.92);border-left:12px solid var(--navy);border-radius:14px;padding:26px 34px}
+.circ .it b{font-size:50px;font-weight:800;color:var(--navy)}
+.circ .it span{font-size:40px;font-weight:600;line-height:1.25}
+
+/* linha do tempo */
+.timeline{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.timeline span{font-size:46px;font-weight:800;color:var(--navy);background:rgba(255,255,255,.92);border-radius:14px;padding:12px 24px;border:3px solid var(--navy)}
+.timeline i{font-style:normal;font-size:52px;font-weight:800;color:var(--red)}
+.timeline span.q{border-color:var(--red);color:var(--red)}
+
+/* figura destacada (imagens pequenas) */
+.figure{position:absolute;top:110px;bottom:170px;right:140px;width:38%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.figure img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;box-shadow:0 18px 50px rgba(19,36,107,.25);background:#fff}
+
+/* números grandes (borboleta) */
+.digits{display:flex;align-items:baseline;gap:28px;flex-wrap:nowrap;white-space:nowrap}
+.digits b{font-size:104px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;letter-spacing:-2px}
+.digits b s{color:var(--red);text-decoration-thickness:8px}
+.digits i{font-style:normal;font-size:84px;font-weight:800;color:var(--red)}
+
+/* sumário */
+.trio{display:flex;gap:40px}
+.trio div{flex:1;background:rgba(255,255,255,.92);border-top:14px solid var(--navy);border-radius:16px;padding:40px 40px 44px;display:flex;flex-direction:column;gap:14px}
+.trio div:nth-child(2){border-top-color:var(--red)}
+.trio b{font-size:84px;font-weight:800;color:var(--navy);line-height:1}
+.trio div:nth-child(2) b{color:var(--red)}
+.trio span{font-size:44px;font-weight:600}
+
+
+/* linha do tempo vertical (Etna) */
+.tl{display:flex;flex-direction:column;gap:10px}
+.tl div{display:flex;align-items:baseline;gap:28px}
+.tl b{font-size:52px;font-weight:800;color:var(--red);font-variant-numeric:tabular-nums;min-width:150px}
+.tl span{font-size:44px;font-weight:700;color:var(--navy)}
+/* fluxo de cartões */
+.flow{display:flex;align-items:stretch;gap:20px}
+.flow .arrow{align-self:center}
+
+
+/* esquemas da Etna */
+.dia{position:relative;width:1640px;flex:none}
+.dia > svg{position:absolute;left:0;top:0}
+.dia .sab{position:absolute}
+.sab{border-radius:50%;border:4px solid var(--navy);background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center;text-align:center;padding:18px}
+.sab span{font-size:32px;font-weight:800;line-height:1.15;color:var(--navy)}
+.sab.main{border-width:8px;border-color:var(--red)}
+.sab.main span{font-size:42px;color:var(--red)}
+.dia .box{position:absolute;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;font-size:38px;font-weight:800;color:var(--navy);background:rgba(255,255,255,.96);border:4px solid var(--navy);border-radius:16px;text-transform:uppercase}
+.dia .box small{font-size:30px;font-weight:600;text-transform:none;color:var(--ink)}
+.dia .box.hot{border-color:var(--red);color:var(--red)}
+.dia .lbl{position:absolute;margin:0;font-size:38px;font-weight:800;color:var(--ink);line-height:1.2}
+.dia .lbl.small{font-size:32px;font-weight:700;line-height:1.3}
+.dia .lbl.big{font-size:60px;color:var(--navy)}
+.steps{display:flex;flex-direction:column;align-items:center;gap:6px}
+.steps span{font-size:56px;font-weight:800;color:var(--navy);background:rgba(255,255,255,.92);border-radius:14px;padding:6px 30px}
+.steps span.hot{color:var(--red)}
+.steps i{font-style:normal;font-size:58px;font-weight:800;color:var(--navy);line-height:1}
+.years{display:flex;align-items:flex-start;gap:16px}
+.years div{display:flex;flex-direction:column;align-items:center;gap:10px}
+.years b{font-size:60px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+.years span{font-size:38px;font-weight:700;color:var(--ink);white-space:nowrap}
+.years i{font-style:normal;font-size:60px;font-weight:800;color:var(--navy)}
+.years .cloud{margin-left:20px;font-size:40px;font-weight:800;color:var(--red);text-align:center;background:rgba(255,255,255,.95);border:4px solid var(--red);border-radius:120px;padding:24px 40px;line-height:1.2}
+.bul{margin:0;padding-left:56px;display:flex;flex-direction:column;gap:44px}
+.bul li{font-size:52px;font-weight:700;line-height:1.3;color:var(--ink)}
+.bul li::marker{color:var(--red)}
+
+/* rodapé */
+.foot{position:absolute;left:140px;right:140px;bottom:36px;height:84px;display:flex;align-items:center;justify-content:space-between;gap:40px;z-index:5}
+.credit{margin:0;font-size:24px;font-weight:600;color:var(--muted);max-width:1100px;line-height:1.3}
+.brand{display:flex;align-items:center;gap:22px;flex:none}
+.brand img{height:76px;width:auto}
+.brand .num{font-size:26px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;min-width:90px;text-align:right}
+
+.cover-logos{position:absolute;top:56px;left:110px;right:110px;display:flex;justify-content:space-between;align-items:flex-start;z-index:5}
+.cover-logos img{height:170px;width:auto}
+
+/* controles */
+.progress{position:absolute;left:0;bottom:0;height:8px;background:var(--red);transition:width .4s ease;z-index:6}
+.hint{position:fixed;right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(14px + env(safe-area-inset-bottom, 0px));font:600 13px/1.2 var(--sans);color:#454D60;background:rgba(255,255,255,.85);border-radius:8px;padding:8px 12px;transition:opacity .6s}
+.nav{position:fixed;top:0;bottom:0;width:22%;border:0;background:transparent;cursor:pointer;padding:0}
+.nav:focus-visible{outline:4px solid var(--red);outline-offset:-8px}
+.nav.prev{left:0}.nav.next{right:0}
+
+@media (prefers-reduced-motion: reduce){
+  .bg,.content > *,.slide{transition:none!important}
+  .bg{transform:none!important}
+  .content > *{opacity:1!important;transform:none!important}
+}
+</style>
+
+<div class="viewport">
+<div class="stage" id="stage">
+
+<!-- CAPA CONJUNTA -->
+<section class="slide" data-credit="Caspar David Friedrich, O viajante sobre o mar de névoa (c. 1817)">
+  <div class="bg" style="background-image:url(img/navega.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.8)"></div>
+  <div class="cover-logos"><img src="img/logo_ucdb.png" alt="Logo da UCDB"><img src="img/logo_ppgdl.png" alt="Logo do PPG Desenvolvimento Local UCDB"></div>
+  <div class="content center" style="top:70px;gap:30px">
+    <p class="cite" style="font-size:32px;color:var(--ink)">Universidade Católica Dom Bosco<br>Programa de Pós-Graduação <i>Stricto Sensu</i> em Desenvolvimento Local</p>
+    <h1 style="font-size:92px">Os sete saberes necessários à educação do futuro: <span class="red">incertezas</span></h1>
+    <p class="lead">Etna Marzolla Gutierres<br>Max Hiroito Tieti</p>
+    <p class="cite" style="font-size:32px"><b>Metodologia na perspectiva interdisciplinar e aprofundamento epistemológico</b><br>Prof.ª Maria Augusta de Castilhos<br>Campo Grande, MS · 2026</p>
+  </div>
+</section>
+
+<!-- ETNA · A OBRA -->
+<section class="slide" data-credit="">
+  <div class="content" style="justify-content:flex-start;gap:30px">
+    <h2>A obra</h2>
+    <div class="dia" style="height:640px">
+      <svg viewBox="0 0 1640 640" width="1640" height="640" aria-label="Setas ligando os sete saberes">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#13246B"/></marker>
+        </defs>
+        <g stroke="#13246B" stroke-width="5" fill="none">
+          <line x1="790" y1="145" x2="885" y2="145" marker-end="url(#ah)"/>
+          <line x1="790" y1="205" x2="885" y2="205" marker-end="url(#ah)"/>
+          <path d="M250,505 C140,500 110,420 115,305" stroke-dasharray="14 10" marker-end="url(#ah)"/>
+          <path d="M482,505 C600,500 650,420 655,305" stroke-dasharray="14 10" marker-start="url(#ah)" marker-end="url(#ah)"/>
+          <line x1="1238" y1="175" x2="1262" y2="175" stroke-dasharray="8 6" marker-end="url(#ah)"/>
+          <line x1="1442" y1="175" x2="1468" y2="175" stroke-dasharray="8 6"/>
+        </g>
+      </svg>
+      <div class="sab" style="left:0;top:60px;width:230px;height:230px"><span>Erro e ilusão</span></div>
+      <div class="sab" style="left:260px;top:40px;width:250px;height:250px"><span>Conhecimento pertinente</span></div>
+      <div class="sab" style="left:540px;top:60px;width:230px;height:230px"><span>Condição humana</span></div>
+      <div class="sab" style="left:252px;top:390px;width:230px;height:230px"><span>Identidade terrena</span></div>
+      <div class="sab main" style="left:900px;top:10px;width:330px;height:330px"><span>Cap. V<br>Enfrentar as incertezas</span></div>
+      <div class="sab" style="left:1270px;top:90px;width:170px;height:170px"><span style="font-size:26px">Compreensão</span></div>
+      <div class="sab" style="left:1470px;top:90px;width:170px;height:170px"><span style="font-size:24px">Ética do gênero humano</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ETNA · ETIMOLOGIA -->
+<section class="slide" data-credit="Gustave Courbet, As peneiradoras de trigo (1854)">
+  <div class="bg" style="background-image:url(img/e_etimologia.jpg);background-position:center 40%"></div>
+  <div class="veil left"></div>
+  <div class="content half">
+    <h1 style="font-size:120px">Etimologia</h1>
+  </div>
+</section>
+
+<!-- ETNA · 2 FUTURO -->
+<section class="slide" data-credit="Thomas Cole, O curso do império: a consumação (1836)">
+  <div class="bg" style="background-image:url(img/e_futuro.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.8)"></div>
+  <div class="content" style="justify-content:flex-start;gap:34px">
+    <h2>2. Do futuro certo ao futuro incerto</h2>
+    <div class="steps">
+      <span>Civilizações tradicionais</span><i>↓</i><span>Modernidade</span><i>↓</i><span class="hot">Século XX</span>
+    </div>
+    <p class="quote" style="font-size:70px;text-align:center">O progresso é certamente possível, mas é incerto <span class="cite" style="font-size:40px">(p. 80)</span></p>
+  </div>
+</section>
+
+<!-- ETNA · 3 INCERTEZA HISTÓRICA -->
+<section class="slide" data-credit="Achille Beltrame, o atentado de Sarajevo, Domenica del Corriere (1914)">
+  <div class="bg" style="background-image:url(img/e_historica.jpg);background-position:center 30%"></div>
+  <div class="veil" style="background:rgba(251,251,248,.86)"></div>
+  <div class="content" style="justify-content:flex-start;gap:60px">
+    <h2>3. A incerteza histórica</h2>
+    <div class="years">
+      <div><b>[1914]</b><span>Sarajevo</span></div><i>→</i>
+      <div><b>[1918]</b><span>&#160;</span></div><i>→</i>
+      <div><b>[1929]</b><span>Wall Street</span></div><i>→</i>
+      <div><b>[1939]</b><span>&#160;</span></div><i>→</i>
+      <div><b>[1989]</b><span>fim da URSS</span></div>
+      <div class="cloud">Futuro =<br>IMPREVISÍVEL</div>
+    </div>
+    <p class="quote" style="font-size:76px;text-align:center">O futuro chama-se incerteza <span class="cite" style="font-size:40px">(p. 81)</span></p>
+  </div>
+</section>
+
+<!-- ETNA · 4 DESVIOS -->
+<section class="slide" data-credit="NASA, rio Mamoré (Bolívia) visto da Estação Espacial (2003)">
+  <div class="bg" style="background-image:url(img/e_desvios.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.86)"></div>
+  <div class="content" style="justify-content:flex-start;gap:26px">
+    <h2>4. A história avança por desvios</h2>
+    <p class="lead" style="font-size:48px;color:var(--navy);font-weight:800">A história não corre como um rio, avança por desvios (p. 81)</p>
+    <p class="eyebrow" style="text-align:center;color:var(--navy)">A dinâmica do desvio</p>
+    <div class="dia" style="height:430px">
+      <svg viewBox="0 0 1640 430" width="1640" height="430" aria-label="Setas da dinâmica do desvio">
+        <defs><marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#13246B"/></marker></defs>
+        <g stroke="#13246B" stroke-width="5" fill="none">
+          <line x1="210" y1="96" x2="120" y2="150" marker-end="url(#ah2)"/>
+          <line x1="210" y1="96" x2="420" y2="150" marker-end="url(#ah2)"/>
+          <path d="M450,305 L450,340 L630,340" marker-end="url(#ah2)"/>
+          <line x1="1112" y1="60" x2="1190" y2="60" marker-end="url(#ah2)"/>
+          <line x1="1112" y1="325" x2="1160" y2="325" marker-end="url(#ah2)"/>
+        </g>
+      </svg>
+      <div class="box" style="left:0;top:0;width:420px;height:96px">[Desvio inicial]</div>
+      <p class="lbl" style="left:0;top:160px;width:290px">microscópico</p>
+      <p class="lbl small" style="left:40px;top:225px;width:250px">PC<br>IA<br>religiões<br>empirismo</p>
+      <p class="lbl" style="left:300px;top:160px;width:320px;text-align:center;font-size:34px">marginal (se não for esmagada)</p>
+      <div class="box" style="left:640px;top:0;width:470px;height:120px;flex-direction:column">Morfogênese<small>sistema se reorganiza</small></div>
+      <div class="box" style="left:1200px;top:12px;width:440px;height:96px;font-size:32px">[Nova normalidade]</div>
+      <div class="box hot" style="left:640px;top:255px;width:470px;height:150px;flex-direction:column;justify-content:flex-start;padding-top:22px">Criação vs. destruição<svg viewBox="0 0 300 40" width="300" height="40" aria-label="balança"><line x1="10" y1="6" x2="290" y2="6" stroke="#13246B" stroke-width="4"/><path d="M150,8 L130,38 L170,38 z" fill="#13246B"/></svg></div>
+      <p class="lbl" style="left:1170px;top:280px;width:470px;text-align:center">ambivalência: a evolução não é necessariamente “boa”</p>
+    </div>
+  </div>
+</section>
+
+<!-- ETNA · CRIAÇÃO VS. DESTRUIÇÃO -->
+<section class="slide" data-credit="Anônimo, A conquista de Tenochtitlan (séc. XVII)">
+  <div class="bg" style="background-image:url(img/e_criacao.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.86)"></div>
+  <div class="content" style="justify-content:flex-start;gap:50px">
+    <h2>Criação vs. destruição</h2>
+    <ul class="bul">
+      <li>Toda evolução tem duas faces: civilização/barbárie, criação/destruição</li>
+      <li>Destruição de civilizações tradicionais (incas, astecas) e “desperdício” da experiência humana (p. 82–83)</li>
+      <li>A história não é linear: tem bifurcações, latências, regressões. É um complexo de ordem, desordem e organização</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ETNA · TRUMAN -->
+<section class="slide" data-credit="Abbie Rowe, posse de Harry Truman, 20 jan. 1949 (Arquivo Nacional dos EUA)">
+  <div class="bg" style="background-image:url(img/e_truman.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.87)"></div>
+  <div class="content" style="justify-content:flex-start;gap:24px">
+    <h2 style="font-size:64px">No desenvolvimento local: o desvio de Truman (1949)</h2>
+    <div class="dia" style="height:400px">
+      <svg viewBox="0 0 1640 400" width="1640" height="400" aria-label="Setas do esquema de Truman">
+        <defs><marker id="ah3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#13246B"/></marker></defs>
+        <g stroke="#13246B" stroke-width="5" fill="none">
+          <line x1="380" y1="80" x2="280" y2="200" marker-end="url(#ah3)"/>
+          <line x1="230" y1="275" x2="350" y2="275" marker-end="url(#ah3)"/>
+          <line x1="980" y1="250" x2="1080" y2="205" marker-end="url(#ah3)"/>
+          <line x1="980" y1="300" x2="1080" y2="340" marker-end="url(#ah3)"/>
+        </g>
+      </svg>
+      <p class="lbl big" style="left:330px;top:0;width:1300px;font-size:56px;white-space:nowrap">Um desvio que virou nova normalidade</p>
+      <p class="lbl" style="left:0;top:245px;width:220px">Discurso</p>
+      <div class="box" style="left:365px;top:220px;width:600px;height:110px">Desenvolvido vs. Subdesenvolvido</div>
+      <p class="lbl" style="left:1095px;top:150px;width:545px">★ Ações exógenas / de fora</p>
+      <p class="lbl" style="left:1095px;top:310px;width:545px">Perda de saberes tradicionais</p>
+    </div>
+    <p class="body" style="text-align:center;font-size:42px">Desenvolvimento para o local (exógeno), e não no local nem a partir dele</p>
+    <p class="lead" style="text-align:center;font-size:52px;color:var(--navy);font-weight:800">• Perda de saberes tradicionais, ligada ao que o Morin diz na p. 82</p>
+  </div>
+</section>
+
+<!-- MAX · ABERTURA DA PARTE -->
+<section class="slide" data-credit="Gravura Flammarion (1888)">
+  <div class="bg" style="background-image:url(img/traduzir.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.8)"></div>
+  <div class="content center">
+    <p class="eyebrow">Parte 2 · Max Hiroito Tieti</p>
+    <h1>A incerteza no conhecer<br>e no agir</h1>
+  </div>
+</section>
+
+<!-- 2 · CAMUS -->
+<section class="slide" data-credit="Ticiano, Sísifo (1548–1549), Museo del Prado">
+  <div class="bg" style="background-image:url(img/camus.jpg);background-position:right 30%"></div>
+  <div class="veil left"></div>
+  <div class="content half">
+    <p class="eyebrow">O anseio por certeza</p>
+    <p class="quote">um anseio desvairado por clareza</p>
+    <p class="lead">diante do <span class="red">silêncio irracional do mundo</span></p>
+    <p class="cite"><b>Albert Camus</b>, <i>O mito de Sísifo</i> (1942) · trad. livre</p>
+  </div>
+</section>
+
+<!-- 3 · BORBOLETA -->
+<section class="slide" data-credit="Morpho didius · foto Didier Descouens, CC BY-SA 4.0 (Muséum de Toulouse)">
+  <div class="content" style="right:44%">
+    <p class="eyebrow">O sonho de prever tudo</p>
+    <div class="digits"><b>0,506<s>127</s></b><i>→</i><b>0,506</b></div>
+    <p class="lead">Um arredondamento mudou toda a previsão do tempo.</p>
+    <p class="cite"><b>Edward Lorenz</b>, 1972: <i>“o bater de asas de uma borboleta no Brasil provoca um tornado no Texas?”</i></p>
+  </div>
+  <div class="figure" style="width:40%"><img src="img/borboleta.jpg" alt="Borboleta azul Morpho didius" style="box-shadow:none;background:transparent"></div>
+</section>
+
+<!-- 4 · SUMÁRIO -->
+<section class="slide" data-credit="">
+  <div class="content">
+    <p class="eyebrow">Onde mora a incerteza</p>
+    <h2>Três lugares</h2>
+    <div class="trio">
+      <div><b>Mundo</b><span>é ordem <u>e</u> desordem</span></div>
+      <div><b>Conhecer</b><span>é traduzir</span></div>
+      <div><b>Agir</b><span>é apostar</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · DIALÓGICA -->
+<section class="slide" data-credit="NASA, ESA, Hubble · Pilares da Criação (2014)">
+  <div class="bg" style="background-image:url(img/dialogica.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.78)"></div>
+  <div class="content">
+    <p class="eyebrow">O mundo</p>
+    <h2>Da ordem impecável à dialógica</h2>
+    <div class="triad"><span class="pill">ordem</span><span class="arrow">↔</span><span class="pill red">desordem</span><span class="arrow">↔</span><span class="pill">organização</span></div>
+    <p class="quote" style="font-size:54px">relação ao mesmo tempo antagônica, concorrente e complementar</p>
+    <p class="cite">Morin, p. 84</p>
+  </div>
+</section>
+
+<!-- 6 · QUATRO INCERTEZAS -->
+<section class="slide" data-credit="Francisco Goya, O sono da razão produz monstros (1799)">
+  <div class="bg" style="background-image:url(img/razao.jpg);background-position:center 30%"></div>
+  <div class="veil" style="background:rgba(251,251,248,.82)"></div>
+  <div class="content">
+    <p class="eyebrow">Conhecer</p>
+    <h2>Quatro incertezas do conhecimento</h2>
+    <div class="grid2">
+      <div class="card"><h3>Cérebro-mental</h3><p>todo conhecimento é tradução</p></div>
+      <div class="card"><h3>Lógica</h3><p>coerente não quer dizer verdadeiro</p></div>
+      <div class="card"><h3>Racional</h3><p>sem autocrítica, vira racionalização</p></div>
+      <div class="card hot"><h3>Psicológica</h3><p>não enxergamos nossa mente por inteiro</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · TRADUZIR / PASCAL -->
+<section class="slide" data-credit="Retrato de Blaise Pascal (cópia de F. Quesnel, c. 1690), Versalhes">
+  <div class="bg" style="background-image:url(img/aposta.jpg);background-position:right 20%;background-size:auto 100%;background-repeat:no-repeat;background-color:#2b2620"></div>
+  <div class="veil left"></div>
+  <div class="content half">
+    <p class="eyebrow">Incerteza cérebro-mental e lógica</p>
+    <p class="lead">Não vemos o mundo: vemos a <span class="red">tradução</span> que o cérebro faz dele.</p>
+    <p class="quote" style="font-size:54px">Nem a contradição é sinal de falsidade, nem a não-contradição é sinal de verdade.</p>
+    <p class="cite"><b>Pascal</b>, citado por Morin, p. 84</p>
+  </div>
+</section>
+
+<!-- 8 · RAZÃO / RACIONALIZAÇÃO -->
+<section class="slide" data-credit="Francisco Goya, O sono da razão produz monstros (1799)">
+  <div class="bg" style="background-image:url(img/razao.jpg);background-size:auto 100%;background-position:right center;background-repeat:no-repeat;background-color:#d9cdb5"></div>
+  <div class="veil left"></div>
+  <div class="content half">
+    <p class="eyebrow">Incerteza racional e psicológica</p>
+    <div class="row" style="flex-direction:column;gap:24px">
+      <div class="card"><h3>Racionalidade</h3><p>aberta: aceita ser contestada</p></div>
+      <div class="card hot"><h3>Racionalização</h3><p>fechada: explica tudo e não aprende nada</p></div>
+    </div>
+    <p class="quote" style="font-size:52px">nossa sinceridade não é garantia de certeza</p>
+    <p class="cite">Morin, p. 85</p>
+  </div>
+</section>
+
+<!-- 9 · NIETZSCHE -->
+<section class="slide" data-credit="Friedrich Hermann Hartmann, Friedrich Nietzsche (c. 1875)">
+  <div class="bg" style="background-image:url(img/nietzsche.jpg);background-size:auto 100%;background-position:right center;background-repeat:no-repeat;background-color:#1b1b1b"></div>
+  <div class="veil left"></div>
+  <div class="content half">
+    <p class="eyebrow">Somos natureza até quando raciocinamos</p>
+    <p class="quote" style="font-size:52px">Por trás de toda lógica há exigências fisiológicas. Por exemplo: que o certo vale mais que o incerto.</p>
+    <p class="cite"><b>Nietzsche</b>, <i>Além do bem e do mal</i> §3 · trad. livre</p>
+    <p class="body">A racionalidade “não dispõe de poder supremo”. <span class="cite">Morin, p. 53</span></p>
+  </div>
+</section>
+
+<!-- 10 · REAL -->
+<section class="slide" data-credit="Olaus Magnus, Carta Marina (1539)">
+  <div class="bg" style="background-image:url(img/real.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.80)"></div>
+  <div class="content">
+    <p class="eyebrow">A incerteza do real</p>
+    <p class="quote">As ideias e teorias não refletem, mas traduzem a realidade.</p>
+    <div class="row">
+      <div class="card"><h3>Realista trivial</h3><p>adapta-se ao imediato</p></div>
+      <div class="card"><h3>Irrealista</h3><p>foge dos limites do real</p></div>
+      <div class="card hot"><h3>Realista complexo</h3><p>vê “algo possível ainda invisível no real”</p></div>
+    </div>
+    <p class="cite">Morin, p. 85</p>
+  </div>
+</section>
+
+<!-- 11 · PALAVRAS CRUZADAS -->
+<section class="slide" data-credit="Arthur Wynne, as primeiras palavras cruzadas, New York World (1913)">
+  <div class="content" style="right:36%">
+    <p class="eyebrow">Como saber, então?</p>
+    <h2>Palavras cruzadas</h2>
+    <p class="lead">Cada palavra se confirma pelas outras: <span class="red">convergência dos indícios</span>.</p>
+    <p class="body">Mas a vida não tem gabarito, e as piores ilusões estão “nas certezas doutrinárias, dogmáticas e intolerantes”.</p>
+    <p class="cite">Morin, p. 86</p>
+  </div>
+  <div class="figure" style="width:28%"><img src="img/cruzadas.jpg" alt="As primeiras palavras cruzadas publicadas, 1913"></div>
+</section>
+
+<!-- 12 · OCEANO -->
+<section class="slide" data-credit="Katsushika Hokusai, A grande onda de Kanagawa (c. 1831)">
+  <div class="bg" style="background-image:url(img/oceano.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.80)"></div>
+  <div class="content center">
+    <p class="quote xl">O conhecimento é a navegação em um oceano de incertezas, entre arquipélagos de certezas.</p>
+    <p class="cite">Morin, p. 86</p>
+  </div>
+</section>
+
+<!-- 13 · AGIR É APOSTAR -->
+<section class="slide" data-credit="NASA, lançamento da Apollo 11 (16 jul. 1969)">
+  <div class="bg" style="background-image:url(img/apostar.jpg);background-position:center 35%"></div>
+  <div class="veil left"></div>
+  <div class="content half">
+    <p class="eyebrow">Agir · ecologia da ação</p>
+    <h2>Agir é apostar</h2>
+    <p class="quote" style="font-size:50px">Tão logo um indivíduo empreende uma ação […] esta começa a escapar de suas intenções.</p>
+    <p class="body">Às vezes ela volta <span class="red">“como um bumerangue”</span>. É preciso seguir, corrigir e, se preciso, torpedear a ação.</p>
+    <p class="cite">Morin, p. 86–87</p>
+  </div>
+</section>
+
+<!-- 14 · ALGORITMO -->
+<section class="slide" data-credit="Exército dos EUA, ENIAC (1946)">
+  <div class="content" style="right:44%">
+    <p class="eyebrow">Gödel · Arrow · von Neumann</p>
+    <h2>Não existe algoritmo ótimo</h2>
+    <p class="quote" style="font-size:52px">é impossível apresentar um algoritmo de otimização para os problemas humanos</p>
+    <p class="cite">Morin, p. 87</p>
+  </div>
+  <div class="figure" style="width:40%"><img src="img/algoritmo.jpg" alt="O computador ENIAC, 1946"></div>
+</section>
+
+<!-- 15 · TRÊS CIRCUITOS -->
+<section class="slide" data-credit="Philipp Foltz, Péricles discursa aos atenienses (1852)">
+  <div class="bg" style="background-image:url(img/circuitos.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.82)"></div>
+  <div class="content">
+    <p class="eyebrow">Ecologia da ação</p>
+    <h2>Três circuitos</h2>
+    <div class="circ">
+      <div class="it"><b>Risco ↔ precaução</b><span>“extrema audácia” e “madura reflexão” ao mesmo tempo (Péricles)</span></div>
+      <div class="it"><b>Fins ↔ meios</b><span>meios sórdidos acabam tomando o lugar dos fins nobres</span></div>
+      <div class="it" style="border-left-color:var(--red)"><b>Ação ↔ contexto</b><span>Franco escolhe Juan Carlos para a ditadura; vem a democracia</span></div>
+    </div>
+    <p class="cite">Morin, p. 88–89</p>
+  </div>
+</section>
+
+<!-- 16 · HIRSCHMAN -->
+<section class="slide" data-credit="Jean-Pierre Houël, A tomada da Bastilha (1789)">
+  <div class="bg" style="background-image:url(img/longo.jpg);background-position:center 60%"></div>
+  <div class="veil" style="background:rgba(251,251,248,.82)"></div>
+  <div class="content">
+    <p class="eyebrow">Hirschman · consequências insuspeitas</p>
+    <div class="row">
+      <div class="card"><h3>Efeito perverso</h3><p>o mal inesperado supera o bem esperado</p></div>
+      <div class="card"><h3>Inanição</h3><p>“quanto mais se muda, mais tudo permanece igual”</p></div>
+      <div class="card"><h3>Conquistas em perigo</h3><p>perde-se liberdade ou segurança</p></div>
+    </div>
+    <p class="lead" style="font-size:50px">“É tudo incerto”: <span class="red">complexidade ou desculpa para não agir?</span></p>
+    <p class="cite">Morin, p. 89</p>
+  </div>
+</section>
+
+<!-- 17 · LONGO PRAZO -->
+<section class="slide" data-credit="Jean-Pierre Houël, A tomada da Bastilha (1789)">
+  <div class="bg" style="background-image:url(img/longo.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.76)"></div>
+  <div class="content">
+    <p class="eyebrow">O longo prazo é imprevisível</p>
+    <div class="timeline"><span>1789</span><i>→</i><span>Terror</span><i>→</i><span>Termidor</span><i>→</i><span>Império</span><i>→</i><span>Bourbons</span><i>→</i><span class="q">?</span></div>
+    <p class="quote" style="font-size:60px">nenhuma ação está segura de ocorrer no sentido de sua intenção</p>
+    <p class="cite">Morin, p. 89–90</p>
+  </div>
+</section>
+
+<!-- 18 · APOSTA -->
+<section class="slide" data-credit="Ivan Aivazovsky, A nona onda (1850)">
+  <div class="bg" style="background-image:url(img/estrategia.jpg)"></div>
+  <div class="veil left"></div>
+  <div class="content half">
+    <p class="eyebrow">Enfrentar · a virada</p>
+    <p class="lead">Não à inação, <span class="red">“mas ao desafio que reconhece seus riscos”</span>.</p>
+    <p class="cite">Morin, p. 90</p>
+    <p class="quote" style="font-size:60px">É preciso apostar. Não é opcional. Você está embarcado.</p>
+    <p class="cite"><b>Pascal</b>, <i>Pensamentos</i> §233 · trad. livre</p>
+  </div>
+</section>
+
+<!-- 19 · PROGRAMA × ESTRATÉGIA -->
+<section class="slide" data-credit="Olaus Magnus, Carta Marina (1539), detalhe">
+  <div class="bg" style="background-image:url(img/real.jpg);background-position:left 70%;background-size:180%"></div>
+  <div class="veil" style="background:rgba(251,251,248,.82)"></div>
+  <div class="content">
+    <p class="eyebrow">Como enfrentar</p>
+    <h2>Programa × estratégia</h2>
+    <div class="row">
+      <div class="card"><h3>Programa</h3><p>sequência fixa, para ambiente estável</p><p>se o contexto muda, <b>trava</b></p></div>
+      <div class="card hot"><h3>Estratégia</h3><p>cenário que se modifica com os acasos e as oportunidades</p><p>prudência <b>e</b> audácia</p></div>
+    </div>
+    <p class="quote" style="font-size:54px">A estratégia deve prevalecer sobre o programa.</p>
+    <p class="cite" style="margin-top:-20px">Morin, p. 90</p>
+  </div>
+</section>
+
+<!-- 20 · LIBERDADE -->
+<section class="slide" data-credit="Eugène Delacroix, A Liberdade guiando o povo (1830)">
+  <div class="bg" style="background-image:url(img/liberdade.jpg);background-position:center 25%"></div>
+  <div class="veil left"></div>
+  <div class="content half">
+    <p class="eyebrow">Fins que brigam entre si</p>
+    <p class="lead">Liberdade demais destrói a igualdade. Igualdade imposta destrói a liberdade.</p>
+    <p class="quote" style="font-size:54px">a fraternidade não pode ser nem decretada, nem imposta, mas incitada</p>
+    <p class="cite">Morin, p. 91</p>
+  </div>
+</section>
+
+<!-- 21 · TESE -->
+<section class="slide" data-credit="">
+  <div class="content center">
+    <p class="eyebrow">E a nossa pesquisa?</p>
+    <h1 style="font-size:112px">O seu projeto de tese é <span class="navy">programa</span> ou <span class="red">estratégia</span>?</h1>
+  </div>
+</section>
+
+<!-- 22 · NAVEGA -->
+<section class="slide" data-credit="Caspar David Friedrich, O viajante sobre o mar de névoa (c. 1817)">
+  <div class="bg" style="background-image:url(img/navega.jpg);background-position:center 30%"></div>
+  <div class="veil right"></div>
+  <div class="content halfR">
+    <p class="eyebrow">Fechamento</p>
+    <p class="body">O desejo de liquidar a incerteza pode ser <span class="red">“uma enfermidade própria a nossas mentes”</span>.</p>
+    <p class="quote" style="font-size:60px">A renúncia ao melhor dos mundos não é, de maneira alguma, a renúncia a um mundo melhor.</p>
+    <p class="cite">Morin, p. 91–92</p>
+  </div>
+</section>
+
+<!-- 23 · FINAL -->
+<section class="slide" data-credit="Vincent van Gogh, Noite estrelada sobre o Ródano (1888)">
+  <div class="bg" style="background-image:url(img/final.jpg)"></div>
+  <div class="veil" style="background:rgba(251,251,248,.82)"></div>
+  <div class="content center">
+    <p class="quote xl">saibamos, então, esperar o inesperado e trabalhar pelo improvável.</p>
+    <p class="cite">Morin, p. 92</p>
+  </div>
+</section>
+
+<!-- 24 · OBRIGADO -->
+<section class="slide" data-credit="foto de Etna Gutierres">
+  <div class="bg" style="background-image:url(img/obrigado.jpg)"></div>
+  <div class="veil" style="background:linear-gradient(180deg,rgba(251,251,248,.9) 0%,rgba(251,251,248,.75) 45%,rgba(251,251,248,0) 75%)"></div>
+  <div class="content center" style="justify-content:flex-start;top:120px">
+    <h1 style="font-size:140px">Obrigada! Obrigado!</h1>
+    <p class="lead">Etna Marzolla Gutierres · Max Hiroito Tieti</p>
+    <p class="cite" style="font-size:32px">MORIN, E. <i>Os sete saberes necessários à educação do futuro</i>. 2. ed. São Paulo: Cortez; Brasília: UNESCO, 2000.</p>
+  </div>
+</section>
+
+<div class="foot">
+  <p class="credit" id="credit"></p>
+  <div class="brand"><img src="img/logo_ucdb.png" alt="UCDB"><img src="img/logo_ppgdl.png" alt="PPG Desenvolvimento Local"><span class="num" id="num"></span></div>
+</div>
+<div class="progress" id="progress"></div>
+</div>
+</div>
+
+<button class="nav prev" id="prev" aria-label="Slide anterior"></button>
+<button class="nav next" id="next" aria-label="Próximo slide"></button>
+<div class="hint" id="hint">← → ou clique · F tela cheia</div>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage');
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var foot=document.querySelector('.foot');
+  var i=0;
+  function fit(){
+    var s=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+    stage.style.transform='translate(-50%,-50%) scale('+s+')';
+  }
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach(function(el,k){el.classList.toggle('active',k===i)});
+    var c=slides[i].getAttribute('data-credit')||'';
+    document.getElementById('credit').textContent=c?('Imagem: '+c):'';
+    document.getElementById('num').textContent=(i+1)+' / '+slides.length;
+    foot.style.visibility=(i===0)?'hidden':'visible';
+    document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+    try{history.replaceState(null,'','#s'+(i+1))}catch(e){}
+  }
+  function go(d){show(i+d)}
+  document.addEventListener('keydown',function(e){
+    var k=e.key;
+    if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='Enter'){e.preventDefault();go(1)}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();go(-1)}
+    else if(k==='Home'){show(0)} else if(k==='End'){show(slides.length-1)}
+    else if(k==='f'||k==='F'){
+      var d=document.documentElement;
+      try{ if(!document.fullscreenElement){ var p=d.requestFullscreen&&d.requestFullscreen(); if(p&&p.catch)p.catch(function(){}) } else { document.exitFullscreen() } }catch(err){}
+    }
+  });
+  document.getElementById('prev').addEventListener('click',function(){go(-1)});
+  document.getElementById('next').addEventListener('click',function(){go(1)});
+  var tx=null;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?1:-1);tx=null});
+  window.addEventListener('resize',fit);
+  setTimeout(function(){var h=document.getElementById('hint');if(h)h.style.opacity='0'},5000);
+  fit();
+  var m=/^#s(\d+)$/.exec(location.hash||'');
+  show(m?parseInt(m[1],10)-1:0);
+})();
+</script>
+
+</body>
+</html>
